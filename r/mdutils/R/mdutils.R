@@ -78,7 +78,22 @@ md_normalize_names <- function(data) {
   normalized <- gsub("_+", "_", normalized)
   normalized[normalized == ""] <- "column"
 
-  duplicated_names <- make.unique(normalized, sep = "_")
+  counts <- new.env(parent = emptyenv())
+  duplicated_names <- character(length(normalized))
+  for (index in seq_along(normalized)) {
+    name <- normalized[[index]]
+    count <- if (exists(name, envir = counts, inherits = FALSE)) {
+      get(name, envir = counts, inherits = FALSE)
+    } else {
+      0L
+    }
+    assign(name, count + 1L, envir = counts)
+    duplicated_names[[index]] <- if (count == 0L) {
+      name
+    } else {
+      paste0(name, "_", count + 1L)
+    }
+  }
   duplicated_names
 }
 
