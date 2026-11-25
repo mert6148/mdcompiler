@@ -12,6 +12,8 @@ add_executable(mdcompiler
 
 target_include_directories(mdcompiler PRIVATE src)
 
+install(TARGETS mdcompiler RUNTIME DESTINATION bin)
+
 enable_testing()
 add_test(
     NAME cli_help
