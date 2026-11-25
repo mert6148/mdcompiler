@@ -1,0 +1,11 @@
+Package: mdutils
+Type: Package
+Title: General-Purpose Data Utilities
+Version: 0.1.0
+Authors@R: person("mert6148", role = c("aut", "cre"))
+Description: Small, dependency-free helpers for cleaning and summarizing data
+    frames. It provides tools to remove empty rows and columns, normalize
+    column names, fill missing values, and calculate missing-value summaries.
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.3.3
