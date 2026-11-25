@@ -1,0 +1,5 @@
+C:/Users/mertd/OneDrive/Masaüstü/mdcompiler/build-install-check/CMakeFiles/mdcompiler.dir
+C:/Users/mertd/OneDrive/Masaüstü/mdcompiler/build-install-check/CMakeFiles/RUN_TESTS.dir
+C:/Users/mertd/OneDrive/Masaüstü/mdcompiler/build-install-check/CMakeFiles/INSTALL.dir
+C:/Users/mertd/OneDrive/Masaüstü/mdcompiler/build-install-check/CMakeFiles/ALL_BUILD.dir
+C:/Users/mertd/OneDrive/Masaüstü/mdcompiler/build-install-check/CMakeFiles/ZERO_CHECK.dir
