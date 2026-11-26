@@ -1,0 +1,18 @@
+{
+    "name": "my-package",
+    "version": "1.0.0",
+    "activationEvents": ["workspaceContains:filePattern"],
+    "main": "./src/extension.js",
+    "bundledDependencies": false,
+    "typesVersions": {
+        "<0.0.0": {
+            "src/*": [
+                "src/*"
+            ]
+        }
+    },
+    "bundleDependencies": true,
+    "config": {
+        "enableTelemetry": true
+    }
+}
