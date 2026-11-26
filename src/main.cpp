@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include "compiler.hpp"
 
 #ifdef _WIN32
 #define MDCOMPILER_WIN32 1
@@ -31,6 +32,7 @@ void printUsage() {
         "  -g, --debug           Debug bilgisi ekle\n"
         "  -I, --include <klasor> Baslik klasoru ekle\n"
         "  -D, --define <NAME=X> Makro tanimla\n"
+        "      --protocol        Makine okunabilir MDCOMPILER/1 protokolu kullan\n"
         "  -v, --version         Surum bilgisini yazdir\n"
         "  -h, --help            Yardimi yazdir\n";
 }
@@ -51,6 +53,11 @@ std::string quote(const fs::path& value) {
     return quote(value.string());
 }
 
+bool startsWith(const std::string& value, const std::string& prefix) {
+    return value.size() >= prefix.size() &&
+        value.compare(0, prefix.size(), prefix) == 0;
+}
+
 std::string executableName(const fs::path& source, const fs::path& output) {
     fs::path result = output;
     if (result.empty()) {
@@ -67,80 +74,13 @@ std::string executableName(const fs::path& source, const fs::path& output) {
     return fs::absolute(result).string();
 }
 
-bool executableExists(const std::string& name) {
-    std::ostringstream command;
-    if (MDCOMPILER_WIN32) {
-        command << "where.exe " << quote(name) << " >nul 2>&1";
-    } else {
-        command << "command -v " << quote(name) << " >/dev/null 2>&1";
-    }
-    return std::system(command.str().c_str()) == 0;
-}
-
-enum class Language {
-    C,
-    Cpp
-};
-
-Language languageFrom(const fs::path& source) {
-    std::string extension = source.extension().string();
-    for (char& ch : extension) {
-        ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
-    }
-
-    if (extension == ".c") {
-        return Language::C;
-    }
-    return Language::Cpp;
-}
-
-std::string environmentCompiler(Language language) {
-    if (language == Language::C) {
-        if (const char* value = std::getenv("MDCOMPILER_CC")) {
-            return value;
-        }
-    } else {
-        if (const char* value = std::getenv("MDCOMPILER_CXX")) {
-            return value;
-        }
-    }
-    return "";
-}
-
-std::string defaultCompiler(Language language) {
-    std::vector<std::string> candidates;
-    if (language == Language::C) {
-        candidates = {"clang", "gcc", "cl", "cc"};
-    } else {
-        candidates = {"clang++", "g++", "cl", "c++"};
-    }
-
-    for (const std::string& candidate : candidates) {
-        if (executableExists(candidate)) {
-            return candidate;
-        }
-    }
-    return "";
-}
-
-bool startsWith(const std::string& value, const std::string& prefix) {
-    return value.size() >= prefix.size() && value.compare(0, prefix.size(), prefix) == 0;
-}
-
-bool isMicrosoftCompiler(const std::string& compiler) {
-    std::string name = compiler;
-    for (char& ch : name) {
-        ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
-    }
-    return name == "cl" || name == "cl.exe";
-}
-
 struct Options {
     fs::path output;
     std::string compiler;
     std::string standard;
     std::string optimize = "0";
     bool debug = false;
+    bool protocol = false;
     std::vector<std::string> includes;
     std::vector<std::string> defines;
 };
@@ -148,78 +88,6 @@ struct Options {
 int fail(const std::string& message) {
     std::cerr << "Hata: " << message << '\n';
     return 1;
-}
-
-std::string buildCommand(
-    const std::string& compiler,
-    Language language,
-    const fs::path& source,
-    const fs::path& output,
-    const Options& options
-) {
-    std::ostringstream command;
-    if (compiler.find(' ') == std::string::npos) {
-        command << compiler;
-    } else {
-        command << quote(compiler);
-    }
-
-    if (isMicrosoftCompiler(compiler)) {
-        command << " /nologo";
-        command << (language == Language::C ? " /TC" : " /TP");
-        if (language == Language::Cpp) {
-            command << " /EHsc";
-        }
-        if (!options.standard.empty()) {
-            if (startsWith(options.standard, "c++")) {
-                command << " /std:" << options.standard;
-            } else if (language == Language::Cpp) {
-                command << " /std:c++" << (options.standard == "c++20" ? "20" : "17");
-            } else if (options.standard == "c11") {
-                command << " /std:c11";
-            } else if (options.standard == "c17") {
-                command << " /std:c17";
-            }
-        }
-        if (!options.optimize.empty()) {
-            if (options.optimize == "0") {
-                command << " /Od";
-            } else {
-                command << " /O" << options.optimize;
-            }
-        }
-        if (options.debug) {
-            command << " /Zi";
-        }
-        for (const std::string& include : options.includes) {
-            command << " /I" << quote(include);
-        }
-        for (const std::string& define : options.defines) {
-            command << " /D" << quote(define);
-        }
-        command << " " << quote(source.string());
-        command << " /Fe" << quote(output.string());
-        if (options.debug) {
-            command << " /link /DEBUG";
-        }
-    } else {
-        if (!options.standard.empty()) {
-            command << " -std=" << options.standard;
-        }
-        command << " -O" << options.optimize;
-        if (options.debug) {
-            command << " -g";
-        }
-        for (const std::string& include : options.includes) {
-            command << " -I " << quote(include);
-        }
-        for (const std::string& define : options.defines) {
-            command << " -D" << quote(define);
-        }
-        command << " " << quote(source.string());
-        command << " -o " << quote(output.string());
-    }
-    return command.str();
 }
 
 bool parseOptions(
@@ -238,14 +106,20 @@ bool parseOptions(
         }
         if ((argument == "-o" || argument == "--output") && index + 1 < arguments.size()) {
             options.output = arguments[++index];
+        } else if (startsWith(argument, "--output=")) {
+            options.output = argument.substr(9);
         } else if ((argument == "-c" || argument == "--compiler") && index + 1 < arguments.size()) {
             options.compiler = arguments[++index];
+        } else if (startsWith(argument, "--compiler=")) {
+            options.compiler = argument.substr(11);
         } else if ((argument == "-s" || argument == "--std") && index + 1 < arguments.size()) {
             options.standard = arguments[++index];
         } else if ((argument == "-O" || argument == "--optimize") && index + 1 < arguments.size()) {
             options.optimize = arguments[++index];
         } else if (argument == "-g" || argument == "--debug") {
             options.debug = true;
+        } else if (argument == "--protocol") {
+            options.protocol = true;
         } else if ((argument == "-I" || argument == "--include") && index + 1 < arguments.size()) {
             options.includes.push_back(arguments[++index]);
         } else if ((argument == "-D" || argument == "--define") && index + 1 < arguments.size()) {
@@ -322,35 +196,49 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    Language language = languageFrom(source);
+    mdcompiler::Language language = mdcompiler::languageFromSource(source);
+    options.compiler = mdcompiler::resolveCompiler(language, options.compiler);
     if (options.compiler.empty()) {
-        options.compiler = environmentCompiler(language);
-    }
-    if (options.compiler.empty()) {
-        options.compiler = defaultCompiler(language);
-    }
-    if (options.compiler.empty()) {
-        return fail(language == Language::C
+        return fail(language == mdcompiler::Language::C
             ? "C derleyicisi bulunamadi (clang, gcc veya cl)."
             : "C++ derleyicisi bulunamadi (clang++, g++ veya cl).");
     }
 
     if (options.standard.empty()) {
-        options.standard = language == Language::C ? "c17" : "c++17";
+        options.standard = language == mdcompiler::Language::C ? "c17" : "c++17";
     }
 
     fs::path output = executableName(source, options.output);
-    std::string compilerCommand =
-        buildCommand(options.compiler, language, source, output, options);
+    mdcompiler::CompileOptions compileOptions;
+    compileOptions.standard = options.standard;
+    compileOptions.optimize = options.optimize;
+    compileOptions.debug = options.debug;
+    compileOptions.includes = options.includes;
+    compileOptions.defines = options.defines;
+    std::string compilerCommand = mdcompiler::buildCommand(
+        options.compiler, language, source, output, compileOptions
+    );
 
+    if (options.protocol) {
+        std::cout << "MDCOMPILER/1 status=ok phase=compile language="
+                  << (language == mdcompiler::Language::C ? "c" : "cpp")
+                  << " compiler=\"" << options.compiler << "\"\n";
+    }
     std::cout << "Derleniyor: " << source << '\n';
     std::cout << "Derleyici: " << options.compiler << '\n';
     int compileResult = std::system(compilerCommand.c_str());
     if (compileResult != 0) {
+        if (options.protocol) {
+            std::cout << "MDCOMPILER/1 status=error phase=compile exit_code="
+                      << compileResult << "\n";
+        }
         return fail("Derleme basarisiz oldu (cikis kodu " +
             std::to_string(compileResult) + ").");
     }
 
+    if (options.protocol) {
+        std::cout << "MDCOMPILER/1 status=ok phase=compiled output=executable exit_code=0\n";
+    }
     std::cout << "Cikti: " << output << '\n';
     if (command == "run") {
         std::ostringstream runCommand;
@@ -360,8 +248,15 @@ int main(int argc, char* argv[]) {
         }
         int runResult = std::system(runCommand.str().c_str());
         if (runResult != 0) {
+            if (options.protocol) {
+                std::cout << "MDCOMPILER/1 status=error phase=run exit_code="
+                          << runResult << "\n";
+            }
             return fail("Program basarisiz oldu (cikis kodu " +
                 std::to_string(runResult) + ").");
+        }
+        if (options.protocol) {
+            std::cout << "MDCOMPILER/1 status=ok phase=run exit_code=0\n";
         }
     }
     return 0;
