@@ -1,0 +1,5 @@
+C:\Users\mertd\OneDrive\Masaüstü\mdcompiler\dist\mdcompiler-docs\Mdcompiler.Docs.exe
+C:\Users\mertd\OneDrive\Masaüstü\mdcompiler\dist\mdcompiler-docs\Mdcompiler.Docs.dll
+C:\Users\mertd\OneDrive\Masaüstü\mdcompiler\dist\mdcompiler-docs\Mdcompiler.Docs.deps.json
+C:\Users\mertd\OneDrive\Masaüstü\mdcompiler\dist\mdcompiler-docs\Mdcompiler.Docs.runtimeconfig.json
+C:\Users\mertd\OneDrive\Masaüstü\mdcompiler\dist\mdcompiler-docs\Mdcompiler.Docs.pdb

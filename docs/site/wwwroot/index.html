@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f4">
+  <meta name="description" content="mdcompiler için C ve C++ derleme, istemci ve protokol dokümantasyonu.">
+  <title>mdcompiler — Geliştirici dokümantasyonu</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">İçeriğe geç</a>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="mdcompiler ana sayfa">
+      <span class="brand-mark">m<span>.</span></span>
+      <span>mdcompiler<small>DEVELOPER DOCS</small></span>
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menü</button>
+    <nav id="site-nav" class="nav-links" aria-label="Ana navigasyon">
+      <a href="#quickstart">Hızlı başlangıç</a>
+      <a href="#commands">Komutlar</a>
+      <a href="#client">İstemci</a>
+      <a href="#protocol">Protokol</a>
+    </nav>
+    <a class="topbar-link" href="https://github.com/mert6148/mdcompiler" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot"></span> C ve C++ için küçük, net bir araç</p>
+        <h1>Kodunu yaz.<br><span>Derlemeye başla.</span></h1>
+        <p class="hero-lede">mdcompiler, C ve C++ kaynaklarını sistemindeki derleyiciyle oluşturur ve çalıştırır. CLI, C istemcisi ve makinece okunabilir protokol tek yerde.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#quickstart">Hemen başla <span aria-hidden="true">↓</span></a>
+          <a class="button button-quiet" href="#commands">Komutlara göz at</a>
+        </div>
+        <div class="hero-meta"><span>C11</span><i></i><span>C++17</span><i></i><span>CMake</span></div>
+      </div>
+      <div class="hero-terminal" aria-label="Örnek derleme terminali">
+        <div class="terminal-bar"><div><b></b><b></b><b></b></div><span>terminal</span><span class="terminal-state">READY</span></div>
+        <pre><code><span class="terminal-comment"># C++ dosyasını çalıştır</span>
+<span class="terminal-prompt">$</span> mdcompiler run main.cpp
+
+<span class="terminal-muted">Derleniyor:</span> "main.cpp"
+<span class="terminal-muted">Derleyici:</span> clang++
+<span class="terminal-success">✓</span> <span class="terminal-output">Program başarıyla çalıştı</span>
+
+<span class="terminal-prompt">$</span> <span class="terminal-cursor">_</span></code></pre>
+        <div class="terminal-footer"><span><span class="status-dot"></span> compiler hazır</span><span>mdcompiler 1.0</span></div>
+      </div>
+    </section>
+
+    <section class="feature-strip" aria-label="Özellikler">
+      <article><span class="feature-number">01</span><div><h2>Otomatik algılama</h2><p>GCC, Clang veya MSVC arasından kurulu olanı bulur.</p></div></article>
+      <article><span class="feature-number">02</span><div><h2>Basit komutlar</h2><p>Derle, çalıştır ve çıktıyı tek CLI ile al.</p></div></article>
+      <article><span class="feature-number">03</span><div><h2>İstemciye hazır</h2><p>C istemcisi ve MDCOMPILER/1 protokolü dahil.</p></div></article>
+    </section>
+
+    <section id="quickstart" class="section quickstart">
+      <div class="section-heading">
+        <p class="eyebrow">01 / HIZLI BAŞLANGIÇ</p>
+        <h2>İlk derlemen,<br><span>birkaç komut uzakta.</span></h2>
+        <p>CMake ve C++17 derleyicisi yeterli. Proje ayrıca C kaynaklarını C11 ile derler.</p>
+      </div>
+      <div class="steps">
+        <article class="step">
+          <div class="step-heading"><span>01</span><h3>Projeyi yapılandır</h3></div>
+          <p>Kaynak klasöründe CMake yapılandırmasını oluştur.</p>
+          <div class="code-card">
+            <div class="code-card-top"><span>TERMINAL</span><button class="copy-button" type="button" data-copy-target="setup-command">Kopyala</button></div>
+            <pre><code id="setup-command">cmake -S . -B build</code></pre>
+          </div>
+        </article>
+        <article class="step">
+          <div class="step-heading"><span>02</span><h3>Derleyiciyi oluştur</h3></div>
+          <p>CLI, C istemcisi ve örnekleri birlikte build et.</p>
+          <div class="code-card">
+            <div class="code-card-top"><span>TERMINAL</span><button class="copy-button" type="button" data-copy-target="build-command">Kopyala</button></div>
+            <pre><code id="build-command">cmake --build build --config Release</code></pre>
+          </div>
+        </article>
+        <article class="step">
+          <div class="step-heading"><span>03</span><h3>Kaynağını çalıştır</h3></div>
+          <p>Windows'ta <code>run.bat</code>, diğer sistemlerde CLI binary'si.</p>
+          <div class="code-card">
+            <div class="code-card-top"><span id="quick-command-label">WINDOWS</span><button class="copy-button" type="button" data-copy-target="quick-command">Kopyala</button></div>
+            <pre><code id="quick-command">run.bat run examples\hello.cpp</code></pre>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="commands" class="section commands-section">
+      <div class="section-heading section-heading-row">
+        <div><p class="eyebrow">02 / KOMUT OLUŞTURUCU</p><h2>Komutunu <span>seç.</span></h2></div>
+        <p>İşletim sistemini, işlemi ve dili seç. Kopyalanabilir komut anında hazırlanır.</p>
+      </div>
+      <div class="command-builder">
+        <div class="builder-controls">
+          <label>İşletim sistemi
+            <select id="os-select">
+              <option value="windows">Windows</option>
+              <option value="posix">Linux / macOS</option>
+            </select>
+          </label>
+          <label>İşlem
+            <select id="action-select">
+              <option value="run">Derle ve çalıştır</option>
+              <option value="build">Derle</option>
+              <option value="compile">Derle (alias)</option>
+            </select>
+          </label>
+          <label>Dil
+            <select id="language-select">
+              <option value="cpp">C++</option>
+              <option value="c">C</option>
+            </select>
+          </label>
+        </div>
+        <div class="builder-output">
+          <div class="code-card-top"><span>ÇALIŞTIRILACAK KOMUT</span><button id="copy-generated" class="copy-button" type="button">Komutu kopyala</button></div>
+          <pre><code id="generated-command" aria-live="polite">run.bat run examples\hello.cpp</code></pre>
+        </div>
+        <p class="builder-note"><span>i</span> Özel kaynak için <code>examples\hello.cpp</code> bölümünü kendi dosyanla değiştir.</p>
+      </div>
+      <div class="command-reference">
+        <div><code>build</code><span>Kaynağı derler, çalıştırmaz.</span></div>
+        <div><code>run</code><span>Derler ve programı başlatır.</span></div>
+        <div><code>--</code><span>Sonrasındaki argümanları programa aktarır.</span></div>
+      </div>
+    </section>
+
+    <section id="client" class="section client-section">
+      <div class="section-heading">
+        <p class="eyebrow">03 / C İSTEMCİ + C++ API</p>
+        <h2>Uygulamana<br><span>bağla.</span></h2>
+        <p>`mdcompiler-client` compiler sürecini shell kullanmadan başlatır ve çıkış kodunu çağırana döndürür.</p>
+      </div>
+      <div class="client-grid">
+        <article class="code-panel">
+          <div class="panel-top"><span class="language-badge badge-c">C</span><span>İstemciyi kullan</span><button class="copy-button" type="button" data-copy-target="c-example">Kopyala</button></div>
+          <pre><code id="c-example">mdcompiler-client ./build/mdcompiler \
+  run examples/hello.cpp \
+  --compiler clang++ \
+  -- --verbose</code></pre>
+          <p>İstemci `--protocol` seçeneğini otomatik ekler. Windows'ta `build\Release\` altındaki `.exe` yollarını kullan.</p>
+        </article>
+        <article class="code-panel">
+          <div class="panel-top"><span class="language-badge badge-cpp">C++</span><span>Derleyici bilgisini al</span><button class="copy-button" type="button" data-copy-target="cpp-example">Kopyala</button></div>
+          <pre><code id="cpp-example">#include "compiler.hpp"
+#include &lt;iostream&gt;
+
+int main() {
+    const std::filesystem::path source{"main.cpp"};
+    const auto language = mdcompiler::languageFromSource(source);
+    const auto compiler = mdcompiler::resolveCompiler(language);
+    if (compiler.empty()) return 1;
+
+    mdcompiler::CompileOptions options;
+    options.standard = "c++17";
+    const auto command = mdcompiler::buildCommand(
+        compiler, language, source, "build/main", options
+    );
+    std::cout &lt;&lt; command &lt;&lt; '\n';
+}</code></pre>
+          <p>Bu C++ API proje içidir; uygulamandan süreç başlatırken argüman vektörü kullanan platform API'sini tercih et.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="protocol" class="section protocol-section">
+      <div class="protocol-copy">
+        <p class="eyebrow">04 / MAKİNECE OKUNABİLİR</p>
+        <h2>Bir protokol.<br><span>Net durumlar.</span></h2>
+        <p>`--protocol`, her aşama için `MDCOMPILER/1` olayları üretir. İstemciler derleme ve çalıştırma sonucunu bu kayıtlardan takip edebilir.</p>
+        <a class="text-link" href="https://github.com/mert6148/mdcompiler/blob/main/docs/client.md" target="_blank" rel="noreferrer">İstemci dokümantasyonu <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="protocol-terminal">
+        <div class="code-card-top"><span>STDOUT · MDCOMPILER/1</span><span class="terminal-state">PROTOCOL</span></div>
+        <pre><code><span class="json-key">MDCOMPILER/1</span> status=<span class="json-value">ok</span> phase=<span class="json-value">compile</span> language=<span class="json-string">cpp</span> compiler=<span class="json-string">"clang++"</span>
+<span class="json-key">MDCOMPILER/1</span> status=<span class="json-value">ok</span> phase=<span class="json-value">compiled</span> exit_code=<span class="json-number">0</span>
+<span class="json-key">MDCOMPILER/1</span> status=<span class="json-value">ok</span> phase=<span class="json-value">run</span> exit_code=<span class="json-number">0</span></code></pre>
+        <div class="protocol-footer"><span><span class="status-dot"></span> UTF-8 uyumlu olay satırları</span><span>v1</span></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <a class="brand brand-footer" href="#"><span class="brand-mark">m<span>.</span></span><span>mdcompiler<small>C / C++ TOOLING</small></span></a>
+    <p>Az araç. Net derleme. <span>© 2026 mdcompiler</span></p>
+    <a href="https://github.com/mert6148/mdcompiler" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+  </footer>
+</body>
+</html>
