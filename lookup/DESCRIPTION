@@ -1,0 +1,58 @@
+Package: lookup
+Title: Lookup R function definitions, including compiled code, S3 and S4 methods
+Version: 0.0.0.9000
+Authors@R: c(
+  person("Jim", "Hester", email = "james.f.hester@gmail.com", role = c("aut", "cre")),
+  person("Hadley", "Wickham", , "hadley@rstudio.com", c("aut"), comment = "s3 generic, methods functions from pryr"),
+  person("Gábor", "Csárdi", , "csardi.gabor@gmail.com", c("aut"), comment = "Code to handle busy notifications, paging of results")
+  )
+Description: Provides a simple interface to lookup and print R function
+  definitions, including C and C++ compiled code from .Call, .C, .Internal and
+  .External calls. Also lookup of S3 and S4 generics, including a
+  simple dialog to print any or all of the loaded methods for the generic.
+Depends:
+    R (>= 3.0.0)
+Imports:
+    gh,
+    memoise,
+    Rcpp,
+    codetools,
+    crayon,
+    rex,
+    methods,
+    highlite,
+    jsonlite,
+    rstudioapi,
+    withr,
+    httr
+License: MIT + file LICENSE
+LazyData: true
+Suggests:
+    testthat,
+    xml2,
+    fasttime,
+    tibble,
+    lassoshooting,
+    devtools,
+    covr,
+    BiocInstaller
+Remotes:
+    jimhester/highlite,
+    gaborcsardi/gh,
+    hadley/memoise
+LinkingTo: Rcpp
+RoxygenNote: 6.0.1
+Collate: 
+    'RcppExports.R'
+    'S3.R'
+    'rcpp.R'
+    'call.R'
+    'internal.R'
+    'external.R'
+    'github.R'
+    'highlight.R'
+    'lookup.R'
+    'package.R'
+    'registered_routines.R'
+    'utils.R'
+Encoding: UTF-8
